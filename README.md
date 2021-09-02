@@ -13,6 +13,7 @@ This step requires that Trimommatic be installed and access to illumina adaptor 
 
 **Phase 3 Alignmnent and Quality assessment of the alignment to Reference
 **
+
 **Phase 4 Variant calling and Filtration**
 
 **Phase 5 Generation of whole Genome consensus fasta**
