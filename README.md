@@ -11,8 +11,7 @@ This step requires that Trimommatic be installed and access to illumina adaptor 
 
 **Phase 2 Host read and contaminant (non-T.pallidum sequence) filteration**
 
-**Phase 3 Alignmnent and Quality assessment of the alignment to Reference
-**
+**Phase 3 Alignmnent and Quality assessment of the alignment to Reference**
 
 **Phase 4 Variant calling and Filtration**
 
