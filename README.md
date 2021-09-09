@@ -11,10 +11,12 @@ This step requires that Trimommatic be installed and access to illumina adaptor 
 
 **Phase 2 Host read and contaminant (non-T.pallidum sequence) filteration**
 
-Trimmed reads are thereafter screened for traces of host genome sequences using bbmap at a threshold of 2 minimum hits 
+-Trimmed reads are thereafter screened for traces of host genome sequences using bbmap at a threshold of 2 minimum hits against the combined file of human, animal, plant and  fungal ribo sequences (i.e. hg19_main_mask_ribo_animal_allplant_allfungus.fa.gz). This is followed by running repair.sh  embedded in bbmap for reads that may have been tossed or broken. 
 
+-Additionally, bacterial contamination is removed by performing a search of the host-free clean sequences against the strainseeker database using seqtk. This step will generate clean paired end reads for subsequent steps of the pipeline.
 
 **Phase 3 Alignmnent and Quality assessment of the alignment to Reference**
+
 
 **Phase 4 Variant calling and Filtration**
 
