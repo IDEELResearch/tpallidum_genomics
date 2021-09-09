@@ -22,7 +22,7 @@ This step requires that Trimommatic be installed and access to illumina adaptor 
 
   - the output bam is sorted  and some base filterng is additionally done using samtools.
   
-  - duplicates are sought and removed from the resuling bam using picard.
+  - duplicates are sought and removed from the resulting bam using picard.
   
   - Indels that may have been introduced during alignment steps are removed using GATK based on the REF intervals used in the alignment.
   
@@ -32,14 +32,30 @@ This step requires that Trimommatic be installed and access to illumina adaptor 
 
   - similarly hardclipped reads can be reomved using picard. 
   
-  - 8 auxiliary shell scripts are provided to perform various postfiltering steps. for instance they are useeful in removing hard clipped reads, chimeric alignments, removing repetetively aligned reads usiing the mapping quality threshold of 10 (MAPQ10.sh) and retention of high quality mapping alignments at   MAPQ40.sh)
+  - 8 auxiliary shell scripts are provided to perform various postfiltering steps. for instance they are useeful in removing hard clipped reads, chimeric alignments, removing repetetively aligned reads using the mapping quality threshold of 10 (MAPQ10.sh) and retention of high quality mapping alignments using  (MAPQ40.sh) script.
 
   - If there are any singletons after filtering, they should be removed using 8.remove_singletons.sh script.
 
-  - Before variant calling phase it is useful to perform alignment quality ie bam QC checks using qualimap.
+  - Before variant calling phase, it is useful to perform alignment quality ie bam QC checks using qualimap.
 
 **Phase 4 Variant calling and Filtration**
 
+In these phase, quality filtered alignment file from previous steps is used to call, genotype, filter and select high quality variants that will in the end be used for generating consensus whole genome fasta sequence in a manner similar to reference-based genome assembly.
+This is achieved through the following steps:
+
+ - We use GATK to perform haptotype calling. At the time of writing this pipeline, GATK version 3 was employed and therefore it is advised to make appropriate modifications for calling certain GATK functions if the latest versions are used. This step will generate vcf file for each sample in the alignment.
+
+ - To perform joint variant calling ie Genoytpe the haplotype , we manually combine each sample raw ggenotype vcf file as in the two step commands below:
+
+    - ls *vcf > vcfs.list
+    
+    - /nas/longleaf/apps/gatk/3.8-0/gatk -T CombineGVCFs -R /proj/ideel/resources/genomes/Tpallidum/SS14_CP004011.1.fasta --variant vcfs.list -o ss14_aligned.haplocaller.joint.raw.g.vcf
+
+ - Once we have comnined raw gvcf file we can now perform joint variant calling using the Genotype function in GATK. This will generate a joint raw vcf file. 
+
+ - We subsequently filter variants based on set parameters to retain those that are reliable and of high quality. Some of the cutt-offs and thereshold levels are as shown in the command below:
+
+    - /nas/longleaf/apps/gatk/3.8-0/gatk -T VariantFiltration -R {REF} -V {input} --filterExpression "QD < 2.0" --filterName "QD" --filterExpression "MQ < 40.0" --filterName "MQ" --filterExpression "FS > 60.0" --filterName "FS" --filterExpression "SOR > 3" --filterName "SORhigh" --filterExpression "MQRankSum <  -12.5" --filterName "MQRankSum" --filterExpression "ReadPosRankSum < -8.0 " --filterName "ReadPosRankSum" --filterExpression "DP < 3" --filterName "LowCoverage"
 
 **Phase 5 Generation of whole Genome consensus fasta**
 
