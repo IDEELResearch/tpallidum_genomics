@@ -4,12 +4,15 @@
 # Author: Wentao Chen but adopted to run on UNC longleaf cluster by Fredrick Nindo
 # Date : 2020/12/12
 These pipeline has 4 major phases:
-
+Raw reads from sequencing platforms come in 3 strands, R1, R2 and R3. R2 is short oligo strand that should be discarded and R3 renamed R2 to maintain the PE format of reads before creating symbolic links for the reads to the analysis working directory.
 **Phase 1 QC of raw reads**
 
-This step requires that Trimommatic be installed and access to illumina adaptor sequences for trimming. Paired end reads are trimmed and can either be compressed or uncompressed for the next step in the pipeline.
+This step requires that Trimommatic be installed and access to illumina adaptor sequences for trimming. Paired end reads are trimmed and can either be compressed or uncompressed for the next step in the pipeline. Trimming aims to remove poor quality reads and adaptors from the raw reads.
 
 **Phase 2 Host read and contaminant (non-T.pallidum sequence) filteration**
+
+Trimmed reads are thereafter screened for traces of host genome sequences using bbmap at a threshold of 2 minimum hits 
+
 
 **Phase 3 Alignmnent and Quality assessment of the alignment to Reference**
 
