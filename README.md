@@ -16,9 +16,30 @@ This step requires that Trimommatic be installed and access to illumina adaptor 
 -Additionally, bacterial contamination is removed by performing a search of the host-free clean sequences against the strainseeker database using seqtk. This step will generate clean paired end reads for subsequent steps of the pipeline.
 
 **Phase 3 Alignmnent and Quality assessment of the alignment to Reference**
+- Clean PE reads are aligned to the REFERENCE TPA genome_using BWA. If the clade is known a priori, it is advisable to use SS14 refseq and Nichols refseq for samples/reads identified as SS14-like or Nichols-like respectively as there are slight differences in the synteny of genomes between these two clades. 
 
+- The output of the alignment is bam file that is processed futher in the subsequent steps for example:
+
+  - the output bam is sorted  and some base filterng is additionally done using samtools.
+  
+  - duplicates are sought and removed from the resuling bam using picard.
+  
+  - Indels that may have been introduced during alignment steps are removed using GATK based on the REF intervals used in the alignment.
+  
+  - mismatches in the alignment are removed using bamutils in the first instance and picard in the second and third steps. 
+  
+  - if there are too much soft-clipped reads in the resultant bam, it is advisable to remove them using bamutils.
+
+  - similarly hardclipped reads can be reomved using picard. 
+  
+  - 8 auxiliary shell scripts are provided to perform various postfiltering steps. for instance they are useeful in removing hard clipped reads, chimeric alignments, removing repetetively aligned reads usiing the mapping quality threshold of 10 (MAPQ10.sh) and retention of high quality mapping alignments at   MAPQ40.sh)
+
+  - If there are any singletons after filtering, they should be removed using 8.remove_singletons.sh script.
+
+  - Before variant calling phase it is useful to perform alignment quality ie bam QC checks using qualimap.
 
 **Phase 4 Variant calling and Filtration**
+
 
 **Phase 5 Generation of whole Genome consensus fasta**
 
