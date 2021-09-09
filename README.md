@@ -57,7 +57,7 @@ This is achieved through the following steps:
 
     - /nas/longleaf/apps/gatk/3.8-0/gatk -T VariantFiltration -R {REF} -V {input} --filterExpression "QD < 2.0" --filterName "QD" --filterExpression "MQ < 40.0" --filterName "MQ" --filterExpression "FS > 60.0" --filterName "FS" --filterExpression "SOR > 3" --filterName "SORhigh" --filterExpression "MQRankSum <  -12.5" --filterName "MQRankSum" --filterExpression "ReadPosRankSum < -8.0 " --filterName "ReadPosRankSum" --filterExpression "DP < 3" --filterName "LowCoverage"
 
-- We further select variants that meet the filtering criteria above ie retain those that passed the quality filtering step in the previoud step.
+- We further select variants that meet the filtering criteria above ie retain those that passed the quality filtering step in the previous step.
 This file is used as input for the next step that makes of vcftools to generate a SNP only vcf used to generate consenus whole genome fasta from vcf file.
 
 
