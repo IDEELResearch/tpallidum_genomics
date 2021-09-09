@@ -51,11 +51,15 @@ This is achieved through the following steps:
     
     - /nas/longleaf/apps/gatk/3.8-0/gatk -T CombineGVCFs -R /proj/ideel/resources/genomes/Tpallidum/SS14_CP004011.1.fasta --variant vcfs.list -o ss14_aligned.haplocaller.joint.raw.g.vcf
 
- - Once we have comnined raw gvcf file we can now perform joint variant calling using the Genotype function in GATK. This will generate a joint raw vcf file. 
+ - Once we have combnined raw gvcf file, we can now perform joint variant calling using the Genotype function in GATK. This will generate a joint raw vcf file. 
 
  - We subsequently filter variants based on set parameters to retain those that are reliable and of high quality. Some of the cutt-offs and thereshold levels are as shown in the command below:
 
     - /nas/longleaf/apps/gatk/3.8-0/gatk -T VariantFiltration -R {REF} -V {input} --filterExpression "QD < 2.0" --filterName "QD" --filterExpression "MQ < 40.0" --filterName "MQ" --filterExpression "FS > 60.0" --filterName "FS" --filterExpression "SOR > 3" --filterName "SORhigh" --filterExpression "MQRankSum <  -12.5" --filterName "MQRankSum" --filterExpression "ReadPosRankSum < -8.0 " --filterName "ReadPosRankSum" --filterExpression "DP < 3" --filterName "LowCoverage"
+
+- We further select variants that meet the filtering criteria above ie retain those that passed the quality filtering step in the previoud step.
+This file is used as input for the next step that makes of vcftools to generate a SNP only vcf used to generate consenus whole genome fasta from vcf file.
+
 
 **Phase 5 Generation of whole Genome consensus fasta**
 
