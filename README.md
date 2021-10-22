@@ -81,3 +81,6 @@ Once you generate the SNPs only vcf, you must run the GetTPseq_fix_replaceDot.ja
 
  java GetTPseq_fix_replaceDot
 
+**Phase 6 Extraction of OMPeome sequences of interest**
+
+[Fredrick to add here]
