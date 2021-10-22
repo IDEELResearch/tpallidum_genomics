@@ -83,4 +83,6 @@ Once you generate the SNPs only vcf, you must run the GetTPseq_fix_replaceDot.ja
 
 **Phase 6 Extraction of OMPeome sequences of interest**
 
-[Fredrick to add here]
+To make ompeome interval file that facilitates the extraction of  ompeome sequences from consensus whole genome fastas given their seqIDs in a text file and intervals_file, run the following command:
+
+while IFS= read -r line1; do while IFS= read -r line2; do echo "$line1$line2"; done <test_intervals.txt; done <nichols_clade1.txt
