@@ -1,24 +1,33 @@
-# tpallidum_genomics - UNC Treponema pallidum whole-genome alignment and variant calling pipeline
+# *Treponema pallidum* WGS pipeline
+**University of North Carolina at Chapel Hill**
 
-#Overview
-#Develop a strict pipeline to analysis Treponema pallidum whole-genome sequence data alignment, variant calling, extraction of outer membrane protein genes.
-#Author: Original code from Nick Brazeau and GATK Best Practices, adapted by Wentao Chen to include filters and optimization done by David Smajs' group. Most recently optimized for UNC's Longleaf cluster by Fredrick Nindo.
-# Date : 2020/12/12
+**Infectious Disease Epidemiology and Ecology Lab (IDEEL, ideelresearch.org) | PI: Parr**
 
-The pipeline has 4 major phases:
-Raw reads from the current Agilent hybrid capture -> Illumina sequencing approach come in 3 parts: R1, R2 and R3. R2 is a short 10-mer molecular barcode strand that we are currently not using and can be discarded. R3 is then renamed R2 to maintain the conventional PE format/nomenclature of reads pulled into the pipeline.
+**Date:** 11/17/2021
 
-**Phase 1: QC of raw reads**
+**Author(s):** Original code from Nick Brazeau and GATK Best Practices, adapted by Wentao Chen to include filters and optimization done by David Smajs' group. Most recently optimized for UNC's Longleaf cluster by Fredrick Nindo.
+
+## Background
+
+**Objective:** Establish a strict pipeline for analysis of *T. pallidum* whole-genome sequence data alignment, variant calling, extraction of outer membrane protein genes.
+
+_Notes:_
+- The pipeline has 6 phases as noted below.
+
+- Raw sequencing data from the current Agilent hybrid capture -> Illumina sequencing approach come in 3 reads: R1, R2 and R3. R2 is a short 10-mer molecular barcode that we are not currently using and can be discarded. R3 is then renamed R2 to maintain the conventional PE read format/nomenclature for use in the pipeline.
+
+
+## **Phase 1: QC of raw reads**
 
 This step requires that Trimommatic be installed and access to illumina adaptor sequences for trimming. Paired end reads are trimmed and can either be compressed or uncompressed for the next step in the pipeline. Trimming aims to remove poor quality reads and adaptors from the raw reads.
 
-**Phase 2: Host read and contaminant (non-T.pallidum sequence) filtration**
+## **Phase 2: Host read and contaminant (non-T.pallidum sequence) filtration**
 
 Trimmed reads are thereafter screened for traces of host genome sequences using bbmap at a threshold of 2 minimum hits against the combined file of human, animal, plant and  fungal ribo sequences (i.e. hg19_main_mask_ribo_animal_allplant_allfungus.fa.gz). This is followed by running repair.sh embedded in bbmap for reads that may have been tossed or broken. 
 
 Additionally, bacterial contamination is removed by performing a search of the host-free, clean sequences against the strainseeker database using seqtk. This step will generate clean paired end reads for subsequent steps of the pipeline.
 
-**Phase 3: Alignmnent and quality assessment of the alignment to reference**
+## **Phase 3: Alignment and quality assessment of the alignment to reference**
 Clean PE reads are aligned to the REFERENCE TPA genome_using BWA. If the clade is known a priori, it is advisable to use SS14 refseq or Nichols refseq for samples/reads identified as SS14-like or Nichols-like, respectively, as there are slight differences in the synteny of genomes between these two clades. 
 
 The output of the alignment is bam file that is processed futher in the subsequent steps for example:
@@ -32,7 +41,7 @@ The output of the alignment is bam file that is processed futher in the subseque
   - If there are any singletons after filtering, they should be removed using 8.remove_singletons.sh script.
   - Before variant calling phase, it is useful to perform alignment quality ie bam QC checks using qualimap.
 
-**Phase 4: Variant calling and filtration**
+## **Phase 4: Variant calling and filtration**
 
 In this phase, quality-filtered alignment files from previous steps are used to call, genotype, filter and select high quality variants that will in the end be used for generating consensus whole genome fasta sequences in a manner similar to reference-based genome assembly.
 
@@ -55,7 +64,7 @@ This is achieved through the following steps:
 - This file is used as input for the next step that makes use of vcftools to generate a SNP only vcf, used to generate a consensus whole-genome fasta from vcf file.
 
 
-**Phase 5: Generation of whole-genome consensus fasta files**
+## **Phase 5: Generation of whole-genome consensus fasta files**
 
 Once you generate the SNP-only vcf, you must run the GetTPseq_fix_replaceDot.java (java script) to get the consensus fasta sequence. 
 
@@ -76,7 +85,7 @@ Once you generate the SNP-only vcf, you must run the GetTPseq_fix_replaceDot.jav
  java GetTPseq_fix_replaceDot
 
 
-**Phase 6: Extraction of OMPeome sequences of interest**
+## **Phase 6: Extraction of OMPeome sequences of interest**
 
 To make an OMPeome interval file that facilitates the extraction of OMPeome sequences from consensus whole genome fastas (generated in Phase 5) given their seqIDs in a text file and intervals_file, run the following command:
 
