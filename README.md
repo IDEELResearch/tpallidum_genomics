@@ -5,7 +5,7 @@
 
 **Date:** 11/17/2021
 
-**Author(s):** Original code from Nick Brazeau and GATK Best Practices, adapted by Wentao Chen to include filters and optimization done by David Smajs' group. Most recently optimized for UNC's Longleaf cluster by Fredrick Nindo.
+**Author(s):** Original code from Nick Brazeau and GATK Best Practices. Adapted by Wentao Chen (see Chen W et al. J Infect Dis 2021) to include filters and optimization developed by David Smajs' group (see Grillová et al. Front. Microbiol 2019). Optimized for UNC's Longleaf cluster by Fredrick Nindo.
 
 ## Background
 
