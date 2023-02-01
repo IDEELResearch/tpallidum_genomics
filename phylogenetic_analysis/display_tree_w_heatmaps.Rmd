@@ -1,0 +1,127 @@
+---
+title: "display_tree_w_heatmaps"
+author: "Hennelly"
+date: "01/16/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+ 
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(data.table)
+library(ggplot2)
+library(ggtree)
+library(ggnewscale)
+library(RColorBrewer)
+
+```
+
+
+
+```{r tree, echo=FALSE}
+
+##load meta data in text file to merge with tree. Needs to have the sample/tip labels of the tree in the first column of this file, and omit row names, in order to properly match to the phylo tree
+meta <- read.table("~/My_R_Files/u19_phylogenetics/0822_index/0922_index_meta.txt", header = TRUE, sep = "\t")
+meta_frame <- data.frame(meta, row.names = NULL)
+
+##loading meta data as a table to pull off individual variables to create each heatmap
+meta_table <- as.data.frame(read.table("~/My_R_Files/u19_phylogenetics/0822_index/0922_index_meta.txt", sep="\t", stringsAsFactors = F, header = TRUE, row.names = 1))
+
+stage_data <- meta_table %>% dplyr::select(("Stage"))
+A2058G_data <- meta_table %>% dplyr::select(("A2058G"))
+A2059G_data <- meta_table %>% dplyr::select(("A2059G"))
+clade_data <- meta_table %>% dplyr::select(("Clade"))
+type_data <- meta_table %>% dplyr::select(("Type"))
+site_data <- meta_table %>% dplyr::select(("Site"))
+continent_data <- meta_table %>% dplyr::select(("Continent"))
+subclade_data <- meta_table %>% dplyr::select(("Subclade"))
+hiv_status_data <- meta_table %>% dplyr::select(("HIV.Status"))
+PolA_data <- meta_table %>% dplyr::select(("PolA"))
+
+##load tree output from gubbins/raxml bootstraps
+gubb_1000R_tree <- ape::read.tree("~/My_R_Files/u19_phylogenetics/0822_index/RAxML_bipartitions.boot-supp_1000R_nvc-index-rep-f_on-gubb-tree")
+
+##calling tree in ggtree, labelling bootstrap support >80 for each node, some scaling for later
+b80_gubb_1000R_tree <- ggtree(gubb_1000R_tree) + geom_nodepoint(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 80)) + geom_treescale(y = -9,fontsize = 3.5, offset = 3, x = 690, width = 30)
+b80_gubb_1000R_tree
+
+############################
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r merge, echo=FALSE}
+
+##This merges meta data onto the tree. Fields from the data are associated with each tip. We manually labelled References and Patients with those respective fields. Some formatting and color as well.
+
+tree_for_heat <- b80_gubb_1000R_tree %<+% meta_frame + geom_tiplab(aes(subset=node %in% c(1:44,46,48:104,106:231), label=PID), size=1, offset=0, color = "black", align=TRUE, linetype = 'dashed', linesize=0.03) + geom_tiplab(aes(subset=node %in% c(45,47,105), color="Blue", label=PID), size=1, offset=0, fontface=2, show.legend=FALSE, align=TRUE, linetype='dashed', linesize=0.03) + geom_tiplab(aes(subset=node %in% c(232), color="Red", label=PID), size=1, offset=0, fontface=2, show.legend=FALSE, align=TRUE, linetype='dashed', linesize=0.03) + geom_tiplab(aes(subset=node %in% c(233), color="Green", label=PID), size=1, offset=0, fontface=2, show.legend=FALSE, align=TRUE, linetype='dashed', linesize=0.03)
+
+
+tree_for_heat 
+
+
+```
+
+``` {r heat, echo=FALSE}
+##Merging individual meta data into the tree as separate heatmaps with own color scale as well as their own legend 
+
+##these are global sizes for various heatmaps dimensions/labels
+col_fs <- 2.3
+col_yo <- 1
+col_xo <- -3
+col_ang <- 58
+set_width <- 0.2 
+
+merge_1 <- gheatmap(tree_for_heat, clade_data, width=0.02, offset=20, colnames = TRUE, font.size = col_fs, colnames_position = "top", colnames_offset_x = col_xo, colnames_offset_y = col_yo, colnames_angle = col_ang, color="NA", hjust = 0) + scale_fill_brewer(palette="Set1", name="Clade", limits=c("Nichols","SS14"), guide=guide_legend(order=1)) 
+merge_1.5 <- merge_1 + new_scale_fill()
+
+merge_1.6 <- gheatmap(merge_1.5, subclade_data, width=0.02, offset=40, colnames = TRUE, font.size = col_fs, colnames_position = "top", colnames_offset_x = col_xo, colnames_offset_y = col_yo, colnames_angle = col_ang, color="NA", hjust = 0) + scale_fill_brewer(palette="RdBu", direction=-1, name="Subclade", limits=c("SS14 Omega","SS14 Omega - East Asia","Nichols A","Nichols B","Nichols C","Nichols E","Nichols Y"), guide=guide_legend(order=2)) 
+merge_1.7 <- merge_1.6 + new_scale_fill() 
+
+merge_2<- gheatmap(merge_1.7, continent_data, width=0.02, offset=60, colnames = TRUE, font.size = col_fs, colnames_position = "top", colnames_offset_x = col_xo, colnames_offset_y = col_yo, colnames_angle = col_ang, color="NA", hjust = 0) + scale_fill_manual(values=c("#EEDD88","#66CCEE","#009988","#C2A5CF","#EE6677"), name="Continent", limits =c("Africa", "Asia", "Europe", "North America", "South America"), guide=guide_legend(order=3)) 
+merge_2.5 <- merge_2 + new_scale_fill()
+
+merge_3 <- gheatmap(merge_2.5, type_data, width=0.02, offset=80, colnames = TRUE, font.size = col_fs, colnames_position = "top", colnames_offset_x = col_xo, colnames_offset_y = col_yo, colnames_angle = col_ang, color="NA", hjust = 0) + scale_fill_brewer(palette="GnBu", direction = -1, name="Type", limits = c("Lesion Swab", "Rabbit-passaged", "Skin Biopsy", "Unknown"), guide=guide_legend(order=4)) 
+merge_3.5 <- merge_3 + new_scale_fill()
+
+merge_4 <- gheatmap(merge_3.5, stage_data, width=0.02, offset=100, colnames = TRUE, font.size = col_fs, colnames_position = "top", colnames_offset_x = col_xo, colnames_offset_y = col_yo, colnames_angle = col_ang, color="NA", hjust = 0) + scale_fill_brewer(palette="YlGn", direction = -1, name="Stage", limits = c("Primary", "Secondary", "Unknown"), guide=guide_legend(order=5)) 
+merge_4.5 <- merge_4 + new_scale_fill()
+
+merge_4.7 <- gheatmap(merge_4.5, hiv_status_data, width=0.02, offset=120, colnames = TRUE, font.size = col_fs, colnames_position = "top", colnames_offset_x = col_xo, colnames_offset_y = col_yo, colnames_angle = col_ang, color="NA", custom_column_labels = "HIV Status", hjust = 0) + scale_fill_brewer(palette="Reds", direction = -1, name="HIV Status", limits = c("Positive", "Negative", "Unknown"), guide=guide_legend(order=6)) 
+merge_4.9 <- merge_4.7 + new_scale_fill()
+
+merge_5 <- gheatmap(merge_4.9, A2058G_data, width=0.02, offset=140, colnames = TRUE, font.size = col_fs, colnames_position = "top", colnames_offset_x = col_xo, colnames_offset_y = col_yo, colnames_angle = col_ang, color="NA", custom_column_labels = "Macro-R (A2058G)", hjust = 0) + scale_fill_brewer(palette="Greys", direction = -1, name="Macrolide Resistance", limits = c("Genotypic Resistance", "Sensitive"), guide=guide_legend(order=7)) 
+merge_5.5 <- merge_5 + new_scale_fill()
+
+merge_6 <- gheatmap(merge_5.5, A2059G_data, width=0.02, offset=160, colnames = TRUE, font.size = col_fs, colnames_position = "top", colnames_offset_x = col_xo, colnames_offset_y = col_yo, colnames_angle = col_ang, color="NA", custom_column_labels = "Macro-R (A2059G)", hjust = 0) + scale_fill_brewer(palette="Greys", direction = -1, name="A2059G", limits = c("Genotypic Resistance","Sensitive"), guide="none")
+
+##this is where I am editing the limits of the graphicso it scales better when presenting
+#xlim cuts out the large backend
+#ylim allows for all labels and tree scale to be visible
+final_tree <- merge_6 + xlim(650,1100) + ylim(-15,270) + theme(legend.key.size = unit(0.4,'cm')) 
+
+final_tree
+
+
+
+#
+```
+
+```{r export_tiff, echo=FALSE}
+###Use this to export the final graphic as a tiff file, named tiff file will show up in your working directory, needs to be run as a chunk. Can edit the dimensions and resolution of final graphic. 
+
+tiff("1022_tree_print.tiff", units="in", width=8, height=9, res=500)
+final_tree
+dev.off()
+
+
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
