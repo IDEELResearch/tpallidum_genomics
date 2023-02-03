@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -n 1
 #SBATCH -t 11-00:00:00
-#SBATCH --mem 4800
+#SBATCH --mem 32
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=fredrick_nindo@med.unc.edu
+#SBATCH --mail-user=chris_hennelly@med.unc.edu
 #SBATCH -o %A_tp_wgs.out
 
 module load samtools

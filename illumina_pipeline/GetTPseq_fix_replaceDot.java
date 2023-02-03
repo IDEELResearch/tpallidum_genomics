@@ -11,7 +11,7 @@ public class GetTPseq_fix_replaceDot {
 
 		String s = "";
 		
-		String sampleFile="/pine/scr/n/z/nzabanyi/test17/variants/cali/test3/samples1.txt";
+		String sampleFile="/pine/scr/h/e/hennelly/unc_wgs-05/ss14_pipeline/consensus_generate/samples.txt";
 		br=new BufferedReader(new FileReader(new File(sampleFile)));
 		HashMap<String,String> samplemap=new HashMap<String,String>();
 		ArrayList<String> sampleList = new ArrayList<String>();
@@ -27,10 +27,10 @@ public class GetTPseq_fix_replaceDot {
 		for (int sampleIndex = 0; sampleIndex < sampleList.size(); sampleIndex++) {
 			String sample = sampleList.get(sampleIndex);
 //SS14
-			String vcfFilePath = "/pine/scr/n/z/nzabanyi/test17/variants/cali/test3/cali.haplocaller.joint.snp1.vcf";
-			String depthFilePath = "/pine/scr/n/z/nzabanyi/test17/" + sample + ".depth.txt";
+			String vcfFilePath = "/pine/scr/h/e/hennelly/unc_wgs-05/ss14_pipeline/consensus_generate/SNPs_only.recode.vcf";
+			String depthFilePath = "/pine/scr/h/e/hennelly/unc_wgs-05/ss14_pipeline/depth/" + sample + ".depth.txt";
 				
-			String refFilePath = "/proj/ideel/resources/genomes/Tpallidum/CP004010.2.fasta";
+			String refFilePath = "/proj/ideel/resources/genomes/Tpallidum/SS14_CP004011.1.fasta";
 //
 
 			
@@ -173,7 +173,7 @@ public class GetTPseq_fix_replaceDot {
 			
 			
 			// vcf # Set up the output PATH here.
-			BufferedWriter tmpbw = new BufferedWriter(new FileWriter(new File("/pine/scr/n/z/nzabanyi/test17/variants/cali/test3"+"/cali.haplocaller.joint.snp1.fasta"),true));
+			BufferedWriter tmpbw = new BufferedWriter(new FileWriter(new File("/pine/scr/h/e/hennelly/unc_wgs-05/ss14_pipeline"+"/unc_wgs-05_ss14.haplocaller.joint.snp1.fasta"),true));
 			tmpbw.append(">"+(samplemap.get(sample)));tmpbw.newLine();tmpbw.flush();
 			
 				HashMap<String, String> altmap = vcfmap.get(sample);
