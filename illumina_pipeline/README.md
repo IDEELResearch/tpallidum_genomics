@@ -25,7 +25,7 @@ This step requires that Trimommatic be installed and access to illumina adaptor 
 
 Trimmed reads are thereafter screened for traces of host genome sequences using bbmap at a threshold of 2 minimum hits against the combined file of human, animal, plant and  fungal ribo sequences (i.e. hg19_main_mask_ribo_animal_allplant_allfungus.fa.gz). This is followed by running repair.sh embedded in bbmap for reads that may have been tossed or broken. 
 
-Additionally, bacterial contamination is removed by performing a search of the host-free, clean sequences against the strainseeker database using seqtk. This step will generate clean paired end reads for subsequent steps of the pipeline.
+Additionally, bacterial contamination is screened for by performing a search of the host-free, clean sequences against the strainseeker database using seqtk. 
 
 ## **Phase 3: Alignment and quality assessment of the alignment to reference**
 Clean PE reads are aligned to the REFERENCE TPA genome_using BWA. If the clade is known a priori, it is advisable to use SS14 refseq or Nichols refseq for samples/reads identified as SS14-like or Nichols-like, respectively, as there are slight differences in the synteny of genomes between these two clades. 
