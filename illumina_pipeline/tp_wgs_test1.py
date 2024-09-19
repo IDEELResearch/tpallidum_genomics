@@ -5,31 +5,28 @@
 ###
 
 ####### Working Directory and Project Specifics ############
-WORKDIR = '/pine/scr/h/e/hennelly/unc_wgs-05/ss14_pipeline/'
-readWD = '/pine/scr/h/e/hennelly/unc_wgs-05/ss14_pipeline/'
+WORKDIR = '/work/'
+readWD = '/work/'
 SAMPLES, = glob_wildcards(readWD + 'symlinks/{samp}_R1.fastq.gz')
 CLEANSAMPLES, = glob_wildcards(readWD + 'host_remove/{samp}.clean.fastq.gz')
 BAMLIST, = glob_wildcards(readWD + 'variant/{samp}_HapoCaller.raw.g.vcf')
 
 
 ################   REFERENCE    ##############
-#REF = '/proj/ideel/resources/genomes/Tpallidum/CP004010.2.fasta'
-REF = '/proj/ideel/resources/genomes/Tpallidum/SS14_CP004011.1.fasta'
-#REF1= '/home/chenwt/Project/T.pallidum_WGS/test/postfilter/filt/final_filtered/consensus_seq/Tp_SS14_GCA_000410555_1.fasta'
-GFF = '/proj/ideel/jonbparrlab/users/fnindo/test1/GCF_000604125.1_ASM60412v1_genomic.gff'
-STRAIN_DB = '/proj/ideel/jonbparrlab/users/hennelly/resources/strainseeker/ss_db_w32_4324/'
-bamutils = '/nas/longleaf/home/hennelly/ngsutils/bin/bamutils'
-#bamutils = '/nas/longleaf/hennelly/anaconda3/pkgs/ngsutils-0.5.9-py27hf9ca5db_4/bin/bamutils'
+#REF = '/genomes/Tpallidum/CP004010.2.fasta'
+REF = '/genomes/Tpallidum/SS14_CP004011.1.fasta'
+GFF = '/test1/GCF_000604125.1_ASM60412v1_genomic.gff'
+STRAIN_DB = '/resources/strainseeker/ss_db_w32_4324/'
+bamutils = '/ngsutils/bin/bamutils'
+
 
 ######## Tools to Call #########
 ######## Always on #########
-PICARD = '/nas/longleaf/apps/picard/2.2.4/picard-tools-2.2.4/picard.jar'
-#TMPDIR = '/proj/ideel/jonbparrlab/users/fnindo/test1/TMPDIR'
-TMPDIR = '/pine/scr/h/e/hennelly/pipeline_u19_wgs-03/u19_unc_ss14/TMPDIR'
-TRIMMOMATIC = '/nas/longleaf/apps/trimmomatic/0.36/Trimmomatic-0.36/trimmomatic-0.36.jar'
-seeker = '/proj/ideel/jonbparrlab/users/hennelly/resources/strainseeker/seeker.pl' 
-#seeker = '/proj/ideel/jonbparrlab/users/fnindo/test1/seeker.pl'
-gatk = '/nas/longleaf/apps/gatk/3.8-0/gatk'
+PICARD = '/apps/picard/2.2.4/picard-tools-2.2.4/picard.jar'
+TMPDIR = '/TMPDIR'
+TRIMMOMATIC = '/apps/trimmomatic/0.36/Trimmomatic-0.36/trimmomatic-0.36.jar'
+seeker = '/resources/strainseeker/seeker.pl' 
+gatk = '/apps/gatk/3.8-0/gatk'
 
 
 ##########################################################################################
@@ -84,7 +81,7 @@ rule all:
 rule select_variants :
         input:  'variants/HaploCaller_joint.qual.vcf'
         output:  'variants/HaploCaller_SNP_joint.pass.vcf'
-        shell:  '/nas/longleaf/apps/gatk/3.8-0/gatk \
+        shell:  '/apps/gatk/3.8-0/gatk \
                 -T SelectVariants \
                 -R {REF} -V {input} -o {output} \
                 -select "vc.isNotFiltered()" '
@@ -92,12 +89,12 @@ rule select_variants :
 rule filter_variants :
         input:  'variants/UNC_Tp_HaploCaller_joint.raw.vcf'
         output:  'variants/HaploCaller_joint.qual.vcf'
-        shell: '/nas/longleaf/apps/gatk/3.8-0/gatk -T VariantFiltration -R {REF} -V {input} --filterExpression "QD<2.0" --filterName "QD" --filterExpression "MQ<40.0" --filterName "MQ" --filterExpression "FS>60.0" --filterName "FS" --filterExpression "MQRankSum<-12.5" --filterName "MQRankSum" --filterExpression "ReadPosRankSum<-8.0 " --filterName "ReadPosRankSum" --filterExpression "DP<3" --filterName "LowCoverage" --logging_level ERROR -o {output}'
+        shell: '/apps/gatk/3.8-0/gatk -T VariantFiltration -R {REF} -V {input} --filterExpression "QD<2.0" --filterName "QD" --filterExpression "MQ<40.0" --filterName "MQ" --filterExpression "FS>60.0" --filterName "FS" --filterExpression "MQRankSum<-12.5" --filterName "MQRankSum" --filterExpression "ReadPosRankSum<-8.0 " --filterName "ReadPosRankSum" --filterExpression "DP<3" --filterName "LowCoverage" --logging_level ERROR -o {output}'
 
 rule genotype_GVCFs:
         input: readWD + 'variants/ss14_aligned.haplocaller.joint.raw.g.vcf'
         output: 'variants/UNC_Tp_HaploCaller_joint.raw.vcf'
-        shell: '/nas/longleaf/apps/gatk/3.8-0/gatk -T GenotypeGVCFs -R {REF} --variant {input} -o {output}'
+        shell: '/apps/gatk/3.8-0/gatk -T GenotypeGVCFs -R {REF} --variant {input} -o {output}'
 
 # NOTE generate a gvcfs.list manually.
 # ls *vcf > vcfs.list
@@ -105,11 +102,11 @@ rule genotype_GVCFs:
 ##can merge raw.g.vcfs from many different analysis to improve and standardize variant calling across all
 
 rule haplotype_caller:
-#        input: '/proj/ideel/jonbparrlab/users/fnindo/test10/run6/postfilter/filt/final_filtered/{samp}.MAPQ40.singletons.final.bam',
-#	input: '/pine/scr/h/e/hennelly/u19_wgs-04/ss14_pipeline/postfilter/{samp}.MAPQ40.singletons.final.bam',
+#        input: '/work/postfilter/filt/final_filtered/{samp}.MAPQ40.singletons.final.bam',
+#	input: '/work/postfilter/{samp}.MAPQ40.singletons.final.bam',
         input: readWD + 'postfilter/{samp}.MAPQ40.singletons.final.bam',
 	output: 'variants/{samp}_HaploCaller.raw.g.vcf'
-        shell:'/nas/longleaf/apps/gatk/3.8-0/gatk -T HaplotypeCaller -R {REF} -I {input} -ploidy 1 -stand_call_conf 30 --emitRefConfidence GVCF -o {output} --unsafe'
+        shell:'/apps/gatk/3.8-0/gatk -T HaplotypeCaller -R {REF} -I {input} -ploidy 1 -stand_call_conf 30 --emitRefConfidence GVCF -o {output} --unsafe'
   
 ##### QC #######
 rule bam_qc:
@@ -214,7 +211,7 @@ rule remove_too_many_mismatches1:
 rule realn_indels:
 	input: bam = 'aln/{samp}.matefixed.bam', chrs = 'intervals/Tp_SS14.intervals', targets = 'aln/{samp}.realigner.intervals', 
 	output: 'aln/{samp}.realn.bam'
-	shell: '/nas/longleaf/apps/gatk/3.8-0/gatk -T IndelRealigner \
+	shell: '/apps/gatk/3.8-0/gatk -T IndelRealigner \
 		-R {REF} -I {input.bam} \
 		-L {input.chrs} -targetIntervals {input.targets} \
 		-o {output}' 
@@ -312,17 +309,17 @@ rule bacteria contamination scan_1:
 rule get_clean_fastq:
     input: 'preprocessed/{samp}.clean.fastq.gz'
     output: 'host_remove/{samp}_1.clean.fastq.gz','host_remove/{samp}_2.clean.fastq.gz'
-    shell: '/nas/longleaf/apps/bbmap/38.82/bbmap/repair.sh tossbrokenreads  in={input} out1={output[0]} out2={output[1]}'
+    shell: '/apps/bbmap/38.82/bbmap/repair.sh tossbrokenreads  in={input} out1={output[0]} out2={output[1]}'
 
 rule host_genome_removal:
     input: 'symlinks/{samp}_1.PAIREDtrimmomatictrimmed.fastq','symlinks/{samp}_2.PAIREDtrimmomatictrimmed.fastq'
     output: 'preprocessed/{samp}.clean.fastq.gz','preprocessed/{samp}.dirty.fastq.gz'
-    shell:'/nas/longleaf/apps/bbmap/38.82/bbmap/bbmap.sh threads=12 -Xmx25g minid=0.95 maxindel=3 bandwidthratio=0.16 bandwidth=12 quickmatch fast minhits=2 path=/proj/ideel/jonbparrlab/users/fnindo/test5/ unpigz pigz in={input[0]} in2={input[1]} outu={output[0]} outm={output[1]}'
+    shell:'//apps/bbmap/38.82/bbmap/bbmap.sh threads=12 -Xmx25g minid=0.95 maxindel=3 bandwidthratio=0.16 bandwidth=12 quickmatch fast minhits=2 path=/proj/ideel/jonbparrlab/users/fnindo/test5/ unpigz pigz in={input[0]} in2={input[1]} outu={output[0]} outm={output[1]}'
 
 rule trim_illumina_Adaptors_fastqs:
     input: readWD + 'symlinks/{samp}_R1.fastq.gz', readWD + 'symlinks/{samp}_R2.fastq.gz'
     output: 'symlinks/{samp}_1.PAIREDtrimmomatictrimmed.fastq', 'symlinks/{samp}_1.UNPAIREDtrimmomatictrimmed.fastq', 'symlinks/{samp}_2.PAIREDtrimmomatictrimmed.fastq', 'symlinks/{samp}_2.UNPAIREDtrimmomatictrimmed.fastq',  
-    shell: 'java -jar /nas/longleaf/apps/trimmomatic/0.36/Trimmomatic-0.36/trimmomatic-0.36.jar PE -threads 24 -trimlog symlinks/trim_log.txt {input[0]} {input[1]} {output[0]} {output[1]} {output[2]} {output[3]} ILLUMINACLIP:/nas/longleaf/apps/trimmomatic/0.36/Trimmomatic-0.36/adapters/TruSeq3-PE.fa:2:30:10:8:TRUE LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36'
+    shell: 'java -jar /apps/trimmomatic/0.36/Trimmomatic-0.36/trimmomatic-0.36.jar PE -threads 24 -trimlog symlinks/trim_log.txt {input[0]} {input[1]} {output[0]} {output[1]} {output[2]} {output[3]} ILLUMINACLIP:/nas/longleaf/apps/trimmomatic/0.36/Trimmomatic-0.36/adapters/TruSeq3-PE.fa:2:30:10:8:TRUE LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36'
      # The TRUE at the end keeps the paired end reads in R2
      # Want to align the PAIRED trimmed
      #adapterremoval, https://github.com/MikkelSchubert/adapterremoval
